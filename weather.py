@@ -1,5 +1,5 @@
 import requests
-import json
+# import json
 from secrets import API_KEY
 
 
@@ -18,6 +18,14 @@ class Weather():
 
     def get_current_conditions(self):
         conditions = self.json_file['current_observation']
+        temp = conditions['temp_f']
+        feels_like = conditions['feelslike_f']
+        weather = conditions['weather']
+        wind_dir = conditions['wind_dir']
+        wind_speed = conditions['wind_mph']
+        precip = conditions['precip_today_in']
+
+        return "\tThe Local Forecast for {}\n\n\tCurrent Temperature: {}F\tFeels Like: {}F\n\tCurrent Condition: {}\n\tCurrent Wind: {}mph from the {}\n\tThere has been {}in of precipitation today\n".format(self.zipcode, temp, feels_like, weather, wind_speed, wind_dir, precip)
 
     def get_forecast(self):
         ten_day = []
@@ -30,6 +38,7 @@ class Weather():
             month = date_dict['monthname']
             date = date_dict['day']
             ten_day.append("\tForecast for {}, {} {}\n\tCondition: {}\n\tTemperature(F): {}\n".format(day, month, date, condition, temp))
+
         return ten_day
 
     def get_rise_set(self):
@@ -41,12 +50,6 @@ class Weather():
     def get_hurricanes(self):
         hurricanes = self.json_file['currenthurricane']
 
-# chester = Weather(23831)
-# chester.get_json()
-# for item in chester.get_forecast():
-#     print(item)
-#     # print(chester.get_forecast())
-
 
 def welcome():
     print("Welcome to the Wunderground API Application")
@@ -55,16 +58,20 @@ def welcome():
 
 def choose_view():
     print("""Here are your options of what to see.
-          1. 10-day Forecast""")
+          1. 10-day Forecast
+          2. Current Weather""")
     return input("Please make a choice from above.\n\t>> ")
 
 
 def main():
     zipcode = Weather(int(welcome()))
     zipcode.get_json()
-    if int(choose_view()) == 1:
+    choice = int(choose_view())
+    if choice == 1:
         for item in zipcode.get_forecast():
             print(item)
+    elif choice == 2:
+        print(zipcode.get_current_conditions())
 
 if __name__ == '__main__':
     main()
