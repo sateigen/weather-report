@@ -1,19 +1,15 @@
 import requests
-# import json
 from secrets import API_KEY
 
 
 class Weather():
     def __init__(self, zipcode):
         self.zipcode = zipcode
-        self.json_file = None # dict_keys(['moon_phase', 'query_zone', 'response'])
+        self.json_file = None
 
-    # http://api.wunderground.com/api/c388c14844aa76bb/features/settings/q/query.format
     def get_json(self):
         request = requests.get('http://api.wunderground.com/api/{}/alerts/astronomy/conditions/currenthurricane/forecast10day/q/{}.json'.format(API_KEY, self.zipcode))
         json_string = request.json()
-        # with open('data/{}.json'.format(self.zipcode), 'w') as f:
-        #     json.dump(json_string, f)
         self.json_file = json_string
 
     def get_current_conditions(self):
@@ -25,7 +21,16 @@ class Weather():
         wind_speed = conditions['wind_mph']
         precip = conditions['precip_today_in']
 
-        return "\tThe Local Forecast for {}\n\n\tCurrent Temperature: {}F\tFeels Like: {}F\n\tCurrent Condition: {}\n\tCurrent Wind: {}mph from the {}\n\tThere has been {}in of precipitation today\n".format(self.zipcode, temp, feels_like, weather, wind_speed, wind_dir, precip)
+        message = (
+            "\tThe Local Forecast for {0}\n\n\tCurrent Temperature: {1}F"
+            "\tFeels Like: {2}F\n\tCurrent Condition: {3}\n"
+            "\tCurrent Wind: {4}mph from the {5}\n"
+            "\tThere has been {6}in of precipitation today\n").format(
+                self.zipcode,
+                temp, feels_like,
+                weather, wind_speed,
+                wind_dir, precip)
+        return message
 
     def get_forecast(self):
         ten_day = []
@@ -37,7 +42,11 @@ class Weather():
             day = date_dict['weekday']
             month = date_dict['monthname']
             date = date_dict['day']
-            ten_day.append("\tForecast for {}, {} {}\n\tCondition: {}\n\tTemperature(F): {}\n".format(day, month, date, condition, temp))
+
+            message = (
+                "\tForecast for {}, {} {}\n\tCondition: {}\n\t"
+                "Temperature(F): {}\n").format(day, month, date, condition, temp)
+            ten_day.append(message)
 
         return ten_day
 
@@ -61,7 +70,15 @@ class Weather():
 
 
     def get_hurricanes(self):
+        storms = []
         hurricanes = self.json_file['currenthurricane']
+        if len(hurricanes) > 0:
+            for idx, item in enumerate(hurricanes):
+                name = hurricanes[idx]['stormInfo']['stormName_Nice']
+                storms.append("\nStorm Name and Category: {}".format(name))
+            return storms
+        else:
+            return "\nThere are currently no major storms.\n"
 
 
 def welcome():
@@ -74,7 +91,8 @@ def choose_view():
           1. 10-day Forecast
           2. Current Weather
           3. Sunrise and Sunset
-          4. Current Weather Alerts""")
+          4. Current Weather Alerts
+          5. Current Hurricanes""")
     return input("Please make a choice from above.\n\t>> ")
 
 
@@ -91,6 +109,9 @@ def main():
         print(zipcode.get_rise_set())
     elif choice == 4:
         print(zipcode.get_alerts())
+    elif choice == 5:
+        for item in zipcode.get_hurricanes():
+            print(item)
 
 if __name__ == '__main__':
     main()
