@@ -42,7 +42,13 @@ class Weather():
         return ten_day
 
     def get_rise_set(self):
+        sun_times = []
         sun = self.json_file['sun_phase']
+        for time in sun:
+            sun_hr = sun[time]['hour']
+            sun_min = sun[time]['minute']
+            sun_times.append(('{}:{}'.format(sun_hr, sun_min)))
+        return "\n\tSunrise will be at {}\n\tSunset will be at {}\n".format(sun_times[0], sun_times[1])
 
     def get_alerts(self):
         alerts = self.json_file['alerts']
@@ -59,7 +65,8 @@ def welcome():
 def choose_view():
     print("""Here are your options of what to see.
           1. 10-day Forecast
-          2. Current Weather""")
+          2. Current Weather
+          3. Sunrise and Sunset""")
     return input("Please make a choice from above.\n\t>> ")
 
 
@@ -72,6 +79,8 @@ def main():
             print(item)
     elif choice == 2:
         print(zipcode.get_current_conditions())
+    elif choice == 3:
+        print(zipcode.get_rise_set())
 
 if __name__ == '__main__':
     main()
