@@ -52,6 +52,13 @@ class Weather():
 
     def get_alerts(self):
         alerts = self.json_file['alerts']
+        if len(alerts) > 0:
+            description = alerts[0]['description']
+            expiration = alerts[0]['expires']
+            return "\n\tThere is currently a {} in effect for your area until {}\n".format(description, expiration)
+        else:
+            return "\nThere are currently no Weather Alerts for your area.\n"
+
 
     def get_hurricanes(self):
         hurricanes = self.json_file['currenthurricane']
@@ -66,7 +73,8 @@ def choose_view():
     print("""Here are your options of what to see.
           1. 10-day Forecast
           2. Current Weather
-          3. Sunrise and Sunset""")
+          3. Sunrise and Sunset
+          4. Current Weather Alerts""")
     return input("Please make a choice from above.\n\t>> ")
 
 
@@ -81,6 +89,8 @@ def main():
         print(zipcode.get_current_conditions())
     elif choice == 3:
         print(zipcode.get_rise_set())
+    elif choice == 4:
+        print(zipcode.get_alerts())
 
 if __name__ == '__main__':
     main()
